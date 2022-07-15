@@ -1,139 +1,88 @@
 #include "sort.h"
-#include <stdio.h>
-/**
- * print_bitonic - prints the array modified by
- * bitonic algorithm
- *
- * @arr: input array
- * @i: first index
- * @limit: last index
- * Return: no return
- */
-void print_bitonic(int *arr, int i, int limit)
-{
-	char *sep;
 
-	for (sep = ""; i < limit; i++)
-	{
-		printf("%s%d", sep, arr[i]);
-		sep = ", ";
-	}
-	printf("\n");
+/**
+ * _swap - swaps two values in an array
+ *
+ * @array: data to sort
+ * @i: first value
+ * @j: second value
+ *
+ * Return: No Return
+ */
+void _swap(int *array, int i, int j)
+{
+	int tmp;
+
+	tmp = array[i];
+	array[i] = array[j];
+	array[j] = tmp;
 }
 
 /**
- * sort_up - sorts the array in UP mode
+ * partition - sorts a partition of data in relation to a pivot
  *
- * @arr: input array
- * @low: first index
- * @high: last index
- * Return: no return
+ * @array: data to sort
+ * @min: Left wall
+ * @max: right wall
+ * @size: size of data
+ *
+ * Return: New Pivot
  */
-void sort_up(int *arr, int low, int high)
+int partition(int *array, int min, int max, size_t size)
 {
-	int i, j, max;
+	int i, j, pivot = array[max];
 
-	for (i = low; i < high; i++)
+	for (i = min, j = max; 1; i++, j--)
 	{
-		max = i;
+		while (array[i] < pivot)
+			i++;
 
-		for (j = i + 1; j < high; j++)
-		{
-			if (arr[max] > arr[j])
-				max = j;
-		}
+		while (array[j] > pivot)
+			j--;
 
-		if (max != i)
-		{
-			arr[i] = arr[i] + arr[max];
-			arr[max] = arr[i] - arr[max];
-			arr[i] = arr[i] - arr[max];
-		}
+		if (i >= j)
+			return (i);
+		_swap(array, i, j);
+		print_array(array, size);
 	}
 }
 
 /**
- * sort_down - sorts the array in DOWN mode
+ * quicksort -  sorts an array of integers in ascending order using the
+ * Quick sort algorithm Lomuto partition scheme
  *
- * @arr: input array
- * @low: first index
- * @high: last index
- * Return: no return
+ * @array: data to sort
+ * @min: Left wall
+ * @max: right wall
+ * @size: size of data
+ *
+ * Return: No Return
  */
-void sort_down(int *arr, int low, int high)
+void quicksort(int *array, int min, int max, size_t size)
 {
-	int i, j, max;
+	int p;
 
-	for (i = low; i < high; i++)
+	if (min < max)
 	{
-		max = i;
-
-		for (j = i + 1; j < high; j++)
-		{
-			if (arr[max] < arr[j])
-				max = j;
-		}
-
-		if (max != i)
-		{
-			arr[i] = arr[i] + arr[max];
-			arr[max] = arr[i] - arr[max];
-			arr[i] = arr[i] - arr[max];
-		}
+		p = partition(array, min, max, size);
+		quicksort(array, min, p - 1, size);
+		quicksort(array, p, max, size);
 	}
 }
 
 /**
- * recursion - recursive function that executes the bitonic sort
- * algorithm
+ * quick_sort_hoare -  sorts an array of integers in ascending order using the
+ * Quick sort algorithm Hoare partition scheme
  *
- * @arr: input array
- * @low: first index
- * @high: last index
- * @bool: UP or DOWN
- * @size: size of the array
- * Return: no return
- */
-void recursion(int *arr, int low, int high, int bool, size_t size)
-{
-	char *option;
-
-	if (high - low < 2)
-		return;
-
-	option = (bool == 0) ? "UP" : "DOWN";
-	printf("Merging [%d/%ld] (%s):\n", high - low, size, option);
-	print_bitonic(arr, low, high);
-
-	if (high - low == 2)
-		return;
-
-	recursion(arr, low, (high + low) / 2, 0, size);
-	sort_up(arr, low, (high + low) / 2);
-	printf("Result [%d/%ld] (%s):\n", ((high + low) / 2) - low, size, "UP");
-	print_bitonic(arr, low, (high + low) / 2);
-
-	recursion(arr, (high + low) / 2, high, 1, size);
-	sort_down(arr, (high + low) / 2, high);
-	printf("Result [%d/%ld] (%s):\n", high - ((high + low) / 2), size, "DOWN");
-	print_bitonic(arr, (high + low) / 2, high);
-}
-
-/**
- * bitonic_sort - first function that executes the bitonic_sort
- * algorithm
+ * @array: data to sort
+ * @size: size of data
  *
- * @array: input array
- * @size: size of the array
- * Return: no return
+ * Return: No Return
  */
-void bitonic_sort(int *array, size_t size)
+void quick_sort_hoare(int *array, size_t size)
 {
 	if (!array || size < 2)
 		return;
 
-	recursion(array, 0, size, 0, size);
-	sort_up(array, 0, size);
-	printf("Result [%ld/%ld] (%s):\n", size, size, "UP");
-	print_bitonic(array, 0, size);
+	quicksort(array, 0, size - 1, size);
 }
